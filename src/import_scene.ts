@@ -66,8 +66,74 @@ const objloader = new OBJLoader();
 const mtlloader = new MTLLoader();
 
 gltfloader.load(sceneURL,function(gltf) {
-    scene.add(gltf.scene)
+    const model = gltf.scene;
+    scene.add(model)
+  
+   
 })
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+function onMouseMove(event) {
+  // Calculate normalized device coordinates (NDC) of the mouse position
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  // Update the picking ray with the camera and mouse position
+  raycaster.setFromCamera(mouse, camera);
+
+  // Perform the raycasting
+  const intersects = raycaster.intersectObjects(scene.children, true);
+
+  // Process the intersection results
+  if (intersects.length > 0) {
+    // Handle intersections, e.g., highlight the object, etc.
+  }
+}
+
+// Attach the event listener
+window.addEventListener('mousemove', onMouseMove, false);
+
+let isDragging = false;
+let selectedObject = null;
+
+function onMouseDown(event) {
+  const intersects = raycaster.intersectObjects(scene.children, true);
+
+  if (intersects.length > 0) {
+    isDragging = true;
+    selectedObject = intersects[0].object;
+    // Perform additional actions on the selected object, if needed
+  }
+}
+
+function onMouseUp(event) {
+  if (isDragging) {
+    isDragging = false;
+    selectedObject = null;
+    // Perform additional actions after releasing the object, if needed
+  }
+}
+
+ function onMove(event) {
+  // ...existing raycasting code...
+
+  if (isDragging) {
+    // Update the position of the selected object based on the mouse movement
+    
+    const intersects = raycaster.intersectObject(scene, true);
+    if (intersects.length > 0) {
+      selectedObject.position.copy(intersects[0].point);
+    }
+  }
+}
+
+// Attach event listeners for mouse interaction
+window.addEventListener('mousedown', onMouseDown, false);
+window.addEventListener('mouseup', onMouseUp, false);
+window.addEventListener('mousemove', onMove, false);
+window.addEventListener('mousemove', onMouseMove, false);
 
 
 
